@@ -32,7 +32,7 @@
 
 | Downloader |                     Feature                |
 | :------------: | :---------------------------------------------: |
-|       ❌        |   Tiktok Downloader (No WM & WM)              |
+|       ✅        |   Tiktok Downloader (No WM & WM)              |
 |       ✅        |   Twitter Video Downloader                    |
 |       ✅        |   Facebook Video Downloader (SD & HD)         |
 |       ❌      |   Instagram Video Downloader                  |
