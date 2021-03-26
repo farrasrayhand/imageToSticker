@@ -89,11 +89,13 @@ module.exports = msgHandler = async (client, message) => {
                     console.log(`Sticker Processed for ${processTime(t, moment())} Second`)
                 })
             } else if (args[0] === 'nobg') {
-                /**
-                * This is Premium feature.
-                * Check premium feature at https://trakteer.id/red-emperor/showcase or chat Author for Information.
-                */
-                client.reply(from, 'ehhh, what\'s that???', id)
+				const encryptMedia = isQuotedImage ? quotedMsg : message
+				const mediaData = await decryptMedia(encryptMedia, uaOverride)
+				const mimetypes = isQuotedImage ? quotedMsg.mimetype : mimetype
+				const base64img = `data:${mimetypes};base64,${mediaData.toString('base64')}`
+				const base64imgnobg = await removebg(base64img)
+				return client.sendImageAsSticker(from, base64imgnobg)
+    .then(() => client.reply(from, `Here\'s your sticker \n\nProcessed for ${processTime(moment())} _Second_`))
             } else if (args.length === 1) {
                 if (!is.Url(url)) { await client.reply(from, 'Maaf, link yang kamu kirim tidak valid. [Invalid Link]', id) }
                 client.sendStickerfromUrl(from, url).then((r) => (!r && r !== undefined)
@@ -332,11 +334,10 @@ module.exports = msgHandler = async (client, message) => {
             break
         case 'tagall':
         case 'everyone':
-            /**
-            * This is Premium feature.
-            * Check premium feature at https://trakteer.id/red-emperor/showcase or chat Author for Information.
-            */
-            client.reply(from, 'ehhh, what\'s that??? \n Check premium feature at https://trakteer.id/red-emperor/showcase or chat Author for Information', id)
+            if (!isGroupMsg) return client.reply(from, 'Maaf, perintah ini hanya dapat dipakai didalam grup! [Group Only]', id)
+			if (!isGroupAdmins) return client.reply(from, 'Gagal, perintah ini hanya dapat digunakan oleh admin grup! [Admin Group Only]', id)
+			const mentions = mentionList(sender.id, botNumber, groupMembers)
+			await client.sendTextWithMentions(from, `Heyy, ${pushname} is calling you !!!\n${mentions}`)
             break
         case 'botstat': {
             const loadedMsg = await client.getAmountOfLoadedMessages()
