@@ -32,16 +32,16 @@
 
 | Downloader |                     Feature                |
 | :------------: | :---------------------------------------------: |
-|       ✅        |   Tiktok Downloader (No WM & WM)              |
+|       ❌        |   Tiktok Downloader (No WM & WM)              |
 |       ✅        |   Twitter Video Downloader                    |
 |       ✅        |   Facebook Video Downloader (SD & HD)         |
-|       ✅      |   Instagram Video Downloader                  |
+|       ❌      |   Instagram Video Downloader                  |
 
 
 | Other  |                     Feature                     |
 | :------------: | :---------------------------------------------: |
 |       ✅        |   Create Custom meme (top text & bottom text)  |
-|       ✅        |   Translate text (quote only)                  |
+|       ❌        |   Translate text (quote only)                  |
 |       ✅        |   check data on the spread of Covid-19 in certain locations|
 |       ✅        |   Check Shipping info (indonesia only)         |
 |      BETA        |   Anti Spam                                   |
