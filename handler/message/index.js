@@ -104,6 +104,26 @@ module.exports = msgHandler = async (client, message) => {
             }
             break
         }
+
+        case 'memesticker':
+            if ((isMedia || isQuotedImage) && args.length >= 2) {
+                const top = arg.split('|')[0]
+                const bottom = arg.split('|')[1]
+                const encryptMedia = isQuotedImage ? quotedMsg : message
+                const mediaData = await decryptMedia(encryptMedia, uaOverride)
+                const getUrl = await uploadImages(mediaData, true)
+                const ImageBase64 = await meme.custom(getUrl, top, bottom)
+                    client.sendImageAsSticker(from, ImageBase64)
+                       .then(() => {
+                           client.reply(from, 'Here\'s your sticker')
+                           console.log(`Sticker Processed for ${processTime(t, moment())} Second`)
+                       })
+                       .catch((err) => console.error(err))
+            } else {
+               await client.reply(from, 'Tidak ada gambar! Untuk membuka daftar perintah kirim #menu [Wrong Format]', id)
+            }
+            break
+
         case 'stikergif':
         case 'stickergif':
         case 'gifstiker':
