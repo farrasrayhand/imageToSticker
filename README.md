@@ -1,6 +1,5 @@
 <div align="center">
  
-# THIS REPOSITORY IS OUTDATED AND NOT MAINTAINED AGAIN, ALL THE ISSUES OR PULL REQUESTS WILL BE IGNORED.
  
 # Whatsapp Bot - sticker creator
 [![Codefactor](https://www.codefactor.io/repository/github/yogasakti/imagetosticker/badge)](https://www.codefactor.io/repository/github/yogasakti/imagetosticker)
@@ -26,15 +25,16 @@
 |       ✅       | Reply A Photo                    |
 |       ✅       | Image Url                        |
 |       ✅       | Animated sticker using giphy url |
-|       https://bit.ly/3hmgD4R       | sticker with no background       |
-|       https://bit.ly/3hmgD4R       | sticker meme      |
+|       ✅       | sticker with no background       |
+|       ✅       | sticker meme                     |
+|       ❌       | text to sticker                  |
 
 
 | Downloader |                     Feature                |
 | :------------: | :---------------------------------------------: |
 |       ✅        |   Tiktok Downloader (No WM & WM)              |
 |       ✅        |   Twitter Video Downloader                    |
-|       ✅        |   Facebook Video Downloader (SD & HD)         |
+|       ❌        |   Facebook Video Downloader (SD & HD)         |
 |       ❌      |   Instagram Video Downloader                  |
 
 
