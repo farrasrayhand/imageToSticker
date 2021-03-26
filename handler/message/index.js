@@ -5,6 +5,14 @@ moment.tz.setDefault('Asia/Jakarta').locale('id')
 const { downloader, cekResi, removebg, urlShortener, meme, translate, getLocationData } = require('../../lib')
 const { msgFilter, color, processTime, is } = require('../../utils')
 const mentionList = require('../../utils/mention')
+const fs = require('fs-extra')
+const fetch = require('node-fetch')
+const sharp = require('sharp')
+const webp = require('webp-converter')
+const axios = require('axios')
+const ms = require('parse-ms')
+const cron = require('node-cron')
+const ffmpeg = require('fluent-ffmpeg')
 const { uploadImages } = require('../../utils/fetcher')
 
 const { menuId, menuEn } = require('./text') // Indonesian & English menu
@@ -128,41 +136,37 @@ module.exports = msgHandler = async (client, message) => {
             if (args.length !== 1) return client.reply(from, 'Maaf, format pesan salah silahkan periksa menu. [Wrong Format]', id)
             if (!is.Url(url) && !url.includes('tiktok.com')) return client.reply(from, 'Maaf, link yang kamu kirim tidak valid. [Invalid Link]', id)
             await client.reply(from, `_Scraping Metadata..._ \n\n${menuId.textDonasi()}`, id)
-            downloader.tiktok(url).then(async (videoMeta) => {
-                const filename = videoMeta.authorMeta.name + '.mp4'
-                const caps = `*Metadata:*\nUsername: ${videoMeta.authorMeta.name} \nMusic: ${videoMeta.musicMeta.musicName} \nView: ${videoMeta.playCount.toLocaleString()} \nLike: ${videoMeta.diggCount.toLocaleString()} \nComment: ${videoMeta.commentCount.toLocaleString()} \nShare: ${videoMeta.shareCount.toLocaleString()} \nCaption: ${videoMeta.text.trim() ? videoMeta.text : '-'}`
-                await client.sendFileFromUrl(from, videoMeta.url, filename, videoMeta.NoWaterMark ? caps : `⚠ Video tanpa watermark tidak tersedia. \n\n${caps}`, '', { headers: { 'User-Agent': 'okhttp/4.5.0', referer: 'https://www.tiktok.com/' } }, true)
-                    .then((serialized) => console.log(`Sukses Mengirim File dengan id: ${serialized} diproses selama ${processTime(t, moment())}`))
-                    .catch((err) => console.error(err))
-            }).catch(() => client.reply(from, 'Gagal mengambil metadata, link yang kamu kirim tidak valid. [Invalid Link]', id))
+                downloader.tiktok(url)
+                    .then(async ({ result }) => {
+                        await client.sendFileFromUrl(from, result.thumb, 'TiktokNoWM.jpg', `➸ *Username*: ${result.username}\n➸ *Caption*: ${result.caption}\n➸ *Uploaded on*: ${result.uploaded_on}\n\nSedang dikirim, sabar ya...`, id)
+                        const responses = await fetch(result.link)
+                        const buffer = await responses.buffer()
+                        fs.writeFileSync(`./temp/${sender.id}_TikTokNoWm.mp4`, buffer)
+                        await client.sendFile(from, `./temp/${sender.id}_TikTokNoWm.mp4`, `${sender.id}_TikTokNoWm.mp4`, '', id)
+                        console.log('Success sending TikTok video with no WM!')
+                        fs.unlinkSync(`./temp/${sender.id}_TikTokNoWm.mp4`)
+                    })
+                    .catch(async (err) => {
+                        console.error(err)
+                        await client.reply(from, 'Error!', id)
+                    })
             break
         case 'ig':
         case 'instagram':
             if (args.length !== 1) return client.reply(from, 'Maaf, format pesan salah silahkan periksa menu. [Wrong Format]', id)
             if (!is.Url(url) && !url.includes('instagram.com')) return client.reply(from, 'Maaf, link yang kamu kirim tidak valid. [Invalid Link]', id)
             await client.reply(from, `_Scraping Metadata..._ \n\n${menuId.textDonasi()}`, id)
-            downloader.insta(url).then(async (data) => {
-                if (data.type == 'GraphSidecar') {
-                    if (data.image.length != 0) {
-                        data.image.map((x) => client.sendFileFromUrl(from, x, 'photo.jpg', '', null, null, true))
-                            .then((serialized) => console.log(`Sukses Mengirim File dengan id: ${serialized} diproses selama ${processTime(t, moment())}`))
-                            .catch((err) => console.error(err))
-                    }
-                    if (data.video.length != 0) {
-                        data.video.map((x) => client.sendFileFromUrl(from, x.videoUrl, 'video.jpg', '', null, null, true))
-                            .then((serialized) => console.log(`Sukses Mengirim File dengan id: ${serialized} diproses selama ${processTime(t, moment())}`))
-                            .catch((err) => console.error(err))
-                    }
-                } else if (data.type == 'GraphImage') {
-                    client.sendFileFromUrl(from, data.image, 'photo.jpg', '', null, null, true)
-                        .then((serialized) => console.log(`Sukses Mengirim File dengan id: ${serialized} diproses selama ${processTime(t, moment())}`))
-                        .catch((err) => console.error(err))
-                } else if (data.type == 'GraphVideo') {
-                    client.sendFileFromUrl(from, data.video.videoUrl, 'video.mp4', '', null, null, true)
-                        .then((serialized) => console.log(`Sukses Mengirim File dengan id: ${serialized} diproses selama ${processTime(t, moment())}`))
-                        .catch((err) => console.error(err))
-                }
-            })
+                        downloader.insta(url)
+                    .then(async ({ result }) => {
+                        for (let i = 0; i < result.post.length; i++) {
+                            if (result.post[i].type === 'image') {
+                                await client.sendFileFromUrl(from, result.post[i].urlDownload, 'igpostdl.jpg', `*...:* *Instagram Downloader* *:...*\n\nUsername: ${result.owner_username}\nCaption: ${result.caption}`, id)
+                            } else if (result.post[i].type === 'video') {
+                                await client.sendFileFromUrl(from, result.post[i].urlDownload, 'igpostdl.mp4', `*...:* *Instagram Downloader* *:...*\n\nUsername: ${result.owner_username}\nCaption: ${result.caption}`, id)
+                            }
+                        }
+                        console.log('Success sending Instagram media!')
+                    })
                 .catch((err) => {
                     console.log(err)
                     if (err === 'Not a video') { return client.reply(from, 'Error, tidak ada video di link yang kamu kirim. [Invalid Link]', id) }
